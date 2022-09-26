@@ -3,8 +3,8 @@
  * @Author: wangwei
  * @Date: 2022-09-26 17:19:24
  * @LastEditors: wangwei
- * @LastEditTime: 2022-09-26 17:56:53
- * @FilePath: /xlegex/src/App.vue
+ * @LastEditTime: 2022-09-26 18:48:02
+ * @FilePath: /tulegetu/src/App.vue
 -->
 <script setup lang="ts">
 import { ref } from 'vue'
