@@ -4,9 +4,12 @@ import Unocss from 'unocss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    Unocss(),
-  ],
-  base: process.env.NODE_ENV === 'production' ? 'https://wangwei-cloud.github.io/tulegetu/' : '/',
+  plugins: [vue(), Unocss()],
+  base:
+    process.env.NODE_ENV === 'production'
+      ? 'https://wangwei-cloud.github.io/tulegetu/'
+      : '/',
+  build: {
+    outDir: 'docs',
+  },
 })
