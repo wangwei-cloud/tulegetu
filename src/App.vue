@@ -1,0 +1,219 @@
+<!--
+ * @Description:
+ * @Author: wangwei
+ * @Date: 2022-09-26 17:19:24
+ * @LastEditors: wangwei
+ * @LastEditTime: 2022-09-26 17:56:53
+ * @FilePath: /xlegex/src/App.vue
+-->
+<script setup lang="ts">
+import { ref } from 'vue'
+import Card from './components/card.vue'
+import { useGame } from './core/useGame'
+import { fireworks } from './core/utils'
+
+const containerRef = ref<HTMLElement | undefined>()
+const clickAudioRef = ref<HTMLAudioElement | undefined>()
+const dropAudioRef = ref<HTMLAudioElement | undefined>()
+const winAudioRef = ref<HTMLAudioElement | undefined>()
+const loseAudioRef = ref<HTMLAudioElement | undefined>()
+
+const isWin = ref(false)
+
+const {
+  nodes,
+  selectedNodes,
+  handleSelect,
+  handleBack,
+  backFlag,
+  handleRemove,
+  removeFlag,
+  removeList,
+  handleSelectRemove,
+} = useGame({
+  container: containerRef,
+  cardNum: 13,
+  layerNum: 6,
+  trap: false,
+  events: {
+    clickCallback: handleClickCard,
+    dropCallback: handleDropCard,
+    winCallback: handleWin,
+    loseCallback: handleLose,
+  },
+})
+
+function handleClickCard() {
+  if (clickAudioRef.value?.paused) {
+    clickAudioRef.value.play()
+  }
+  else if (clickAudioRef.value) {
+    clickAudioRef.value.load()
+    clickAudioRef.value.play()
+  }
+}
+
+function handleDropCard() {
+  dropAudioRef.value?.play()
+}
+
+function handleWin() {
+  winAudioRef.value?.play()
+  isWin.value = true
+  fireworks()
+}
+
+function handleLose() {
+  loseAudioRef.value?.play()
+  setTimeout(() => {
+    alert('槽位已满，再接再厉~')
+    window.location.reload()
+  }, 500)
+}
+</script>
+
+<template>
+  <div flex flex-col w-full h-full>
+    <div
+      text-44px
+      text-center
+      w-full
+      color="#000"
+      fw-600
+      h-60px
+      flex
+      items-center
+      justify-center
+      mt-10px
+    >
+      兔了个兔
+    </div>
+    <div ref="containerRef" flex-1 flex>
+      <div w-full relative flex-1>
+        <template v-for="item in nodes" :key="item.id">
+          <transition>
+            <Card
+              v-if="[0, 1].includes(item.state)"
+              :node="item"
+              @click-card="handleSelect"
+            />
+          </transition>
+        </template>
+      </div>
+      <transition name="bounce">
+        <div
+          v-if="isWin"
+          color="#000"
+          flex
+          items-center
+          justify-center
+          w-full
+          text-28px
+          fw-bold
+        >
+          成功加入兔圈~
+        </div>
+      </transition>
+    </div>
+
+    <div text-center h-50px flex items-center justify-center>
+      <Card
+        v-for="item in removeList"
+        :key="item.id"
+        :node="item"
+        is-dock
+        @click-card="handleSelectRemove"
+      />
+    </div>
+    <div w-full flex items-center justify-center>
+      <div border="~ 4px dashed #000" w-295px h-44px flex>
+        <template v-for="item in selectedNodes" :key="item.id">
+          <transition name="bounce">
+            <Card v-if="item.state === 2" :node="item" is-dock />
+          </transition>
+        </template>
+      </div>
+    </div>
+
+    <div h-50px flex items-center w-full justify-center pb-30px>
+      <button :disabled="removeFlag" mr-10px @click="handleRemove">
+        移出前三个
+      </button>
+      <button :disabled="backFlag" @click="handleBack">
+        回退
+      </button>
+    </div>
+    <audio
+      ref="clickAudioRef"
+      style="display: none"
+      controls
+      src="./audio/click.mp3"
+    />
+    <audio
+      ref="dropAudioRef"
+      style="display: none"
+      controls
+      src="./audio/drop.mp3"
+    />
+    <audio
+      ref="winAudioRef"
+      style="display: none"
+      controls
+      src="./audio/win.mp3"
+    />
+    <audio
+      ref="loseAudioRef"
+      style="display: none"
+      controls
+      src="./audio/lose.mp3"
+    />
+  </div>
+</template>
+
+<style>
+body {
+  background-color: #c3fe8b;
+}
+
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+.bounce-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.slide-fade-enter-active {
+  transition: all 0.2s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(25vh);
+  opacity: 0;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+</style>
